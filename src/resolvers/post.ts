@@ -1,7 +1,6 @@
 import { Post } from '../entities/Post';
 import { Resolver, Query, Ctx, Arg, Int, Mutation } from "type-graphql";
 import { MyContext } from 'src/types';
-import { type } from 'os';
 
 @Resolver()
 export class PostResolver {
@@ -34,7 +33,6 @@ export class PostResolver {
         @Arg("title", () => String, {nullable: true}) title: string,
         @Ctx() {em}: MyContext): Promise<Post | null> {
         const post = await em.findOne(Post, { id })
-        console.log('post found', post);
         if(!post){
             return null;
         }
@@ -42,8 +40,16 @@ export class PostResolver {
             post.title = title;
             await em.persistAndFlush(post);
         }
-        console.log('post updated', post)
         return post;
 
     }
+    @Mutation(() => Boolean)
+    async deletePost(
+        @Arg("id") id: number,
+        @Ctx() {em}: MyContext): Promise<boolean> {
+             await em.nativeDelete(Post, { id })
+             console.log('deleted')
+             return true
+        }
+    
 }
