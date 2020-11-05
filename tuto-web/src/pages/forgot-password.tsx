@@ -10,10 +10,8 @@ import { toErrorMap } from '../utils/toErrorMap';
 
 const ForgotPassword: React.FC<{}> = ({}) => {
 
-    const router = useRouter();
     const [complete, setComplete] = useState(false);
     const [, forgotPassword] = useForgotPasswordMutation();
-    
     return (
       <Formik 
       initialValues={{email: ''}}

@@ -1,3 +1,4 @@
+import { createUpdootLoader } from './utils/createUpdootLoader';
 import { UserResolver } from './resolvers/user';
 import "reflect-metadata";
 import { __prod__, COOKIE_NAME } from './constants';
@@ -13,6 +14,9 @@ import cors from 'cors'
 import {createConnection} from 'typeorm'
 import { User } from './entities/User';
 import { Post } from './entities/Post';
+import path from "path"
+import { Updoot } from './entities/Updoot';
+import { createUserLoader } from './utils/createUserLoader';
 
 const main = async () => {
     const conn = await createConnection({
@@ -22,8 +26,12 @@ const main = async () => {
         password:'postgres',
         logging: true,
         synchronize: true,
-        entities: [User, Post]
+        migrations:[path.join(__dirname, './migrations/*'],
+        entities: [User, Post, Updoot]
     })
+
+    conn.runMigrations();
+    // await Post.delete({});
 
     
     const app = express();
@@ -62,7 +70,13 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false
         }),
-        context: ({req, res}) => ({ req, res, redis})
+        context: ({req, res}) => ({ 
+            req,
+            res,
+            redis,
+            userLoader: createUserLoader(),
+            updootLoader: createUpdootLoader()
+            })
     });
 
     AppoloServer.applyMiddleware({
@@ -77,4 +91,3 @@ const main = async () => {
 
 main();
 
-console.log('test')
